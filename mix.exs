@@ -39,6 +39,7 @@ defmodule Minesweeper.Mixfile do
       {:gettext, "~> 0.11"},
       {:plug_cowboy, "~> 1.0"},
       {:phoenix_live_view, github: "phoenixframework/phoenix_live_view"},
+      {:poison, "~> 3.1"},
     ]
   end
 end

@@ -1,1 +1,7 @@
-/* This file is for your main application css. */
+body {
+  text-align: center;
+  font-family: "sans-serif";
+  font-size: 12px;
+  background: #5a5e86;
+  color: #ffffff;
+}
