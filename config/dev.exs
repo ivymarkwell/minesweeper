@@ -13,13 +13,13 @@ config :minesweeper, MinesweeperWeb.Endpoint,
   check_origin: false,
   watchers: [
     node: [
-    "node_modules/webpack/bin/webpack.js",
-    "--mode",
-    "development",
-    "--watch-stdin",
-    cd: Path.expand("../assets", __DIR__)
+      "node_modules/webpack/bin/webpack.js",
+      "--mode",
+      "development",
+      "--watch-stdin",
+      cd: Path.expand("../assets", __DIR__)
+    ]
   ]
-]
 
 # ## SSL Support
 #

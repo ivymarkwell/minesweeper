@@ -5,16 +5,16 @@
   <div class="board">
     <div class="header">
       <div class="flags">
-        <div class="timer timer9"></div>
-        <div class="timer timer9"></div>
+        <div class="timer timer<%= rem(@mine_count,10) %>"></div>
+        <div class="timer timer<%= div(@mine_count,10) %>"></div>
         <div class="timer timer0"></div>
       </div>
       <div class="time">
-        <div class="timer timer0"></div>
-        <div class="timer timer0"></div>
-        <div class="timer timer0"></div>
+        <div class="timer timer<%= rem(@time,10) %>"></div>
+        <div class="timer timer<%= div(@time,10)  %>"></div>
+        <div class="timer timer<%= div(@time,100) %>"></div>
       </div>
-      <span class="status alive">
+      <span class="status <%= @game_status %>">
       </span>
     </div>
   </div>
