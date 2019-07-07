@@ -14,8 +14,20 @@
         <div class="timer timer<%= div(@time,10)  %>"></div>
         <div class="timer timer<%= div(@time,100) %>"></div>
       </div>
-      <span class="status <%= @game_status %>">
-      </span>
+      <span class="status <%= @game_status %>"/>
+    </div>
+    <div class="bottom">
+      <table>
+        <tbody>
+          <%= for {{x}, y} <- @rows do %>
+            <tr key="<%= x %>"/>
+              <%= for {y, mine} <- y do %>
+                <td class="mine"/>
+              <% end %>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
     </div>
   </div>
 </div>

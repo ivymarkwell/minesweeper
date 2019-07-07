@@ -3,12 +3,26 @@ defmodule MinesweeperWeb.MinesweeperLive do
 
   defp new_game(socket) do
     assign(socket,
-      rows: 16,
-      columns: 30,
+      rows: rows(),
       mine_count: 99,
       time: 0,
       game_status: "alive"
     )
+  end
+
+  @rows 16
+  @columns 30
+
+  defp columns() do
+    for y <- 1..@columns, into: %{} do
+      {y, "mine"}
+    end
+  end
+
+  defp rows() do
+    for x <- 1..@rows, into: %{} do
+      {{x}, columns()}
+    end
   end
 
   defp schedule_tick(socket) do

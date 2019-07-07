@@ -31,12 +31,10 @@ body {
 }
 
 .mine {
-  margin: auto auto;
-  top: 4px;
-  border-width: 1px;
-  border-style: outset;
-  background-color: #bbb;
-  padding: 1px;
+  background-repeat: no-repeat;
+  background-position: center center;
+  height: 16px;
+  width: 16px;
 }
 
 /* face */
@@ -126,4 +124,33 @@ body {
 
 .timer9 {
   background-image: url(data:image/gif;base64,R0lGODlhCwAVALMAAAAAAIAAAACAAICAAAAAgIAAgACAgMDAwICAgP8AAAD/AP//AAAA//8A/wD//////ywAAAAACwAVAAAEMRCkSamUdeK0dQYgmHFhp5VjaZLhp24rJ49aEF/2O9l5W+s7QE/0U1F4xt8nSLvQNBEAOw==);
+}
+
+/* table */
+
+.bottom {
+  margin: 5px;
+  border: 3px inset #eee;
+  background-color: #bbb;
+}
+
+.bottom table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+.bottom table,
+tbody,
+tr,
+td {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-size: 100%;
+  font: inherit;
+  vertical-align: baseline;
+}
+
+.mine {
+  background-image: url(data:image/gif;base64,R0lGODlhEAAQALMAAAAAAIAAAACAAICAAAAAgIAAgACAgMDAwICAgP8AAAD/AP//AAAA//8A/wD//////ywAAAAAEAAQAAAELPDJSSt4J+ut0eVg5mEhN5bmh3bqepzu266wW9Mzeut5OSLAoFAIKBqPyGIEADs=);
 }
