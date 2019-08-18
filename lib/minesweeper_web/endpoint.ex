@@ -1,7 +1,8 @@
 defmodule MinesweeperWeb.Endpoint do
   use Phoenix.Endpoint, otp_app: :minesweeper
 
-  socket "/socket", MinesweeperWeb.UserSocket
+  socket "/socket", MinesweeperWeb.UserSocket, websocket: true, longpoll: false
+  socket "/live", Phoenix.LiveView.Socket
 
   # Serve at "/" the static files from "priv/static" directory.
   #
@@ -37,22 +38,7 @@ defmodule MinesweeperWeb.Endpoint do
   plug Plug.Session,
     store: :cookie,
     key: "_minesweeper_key",
-    signing_salt: "ys0ZUxcw"
+    signing_salt: "07pDdIylxJF0eqvrbD9bd5QyIKyzar2RVKHZanGz+pzJ2aTV03CBWDH2dHTO37OD"
 
   plug MinesweeperWeb.Router
-
-  @doc """
-  Callback invoked for dynamically configuring the endpoint.
-
-  It receives the endpoint configuration and checks if
-  configuration should be loaded from the system environment.
-  """
-  def init(_key, config) do
-    if config[:load_from_system_env] do
-      port = System.get_env("PORT") || raise "expected the PORT environment variable to be set"
-      {:ok, Keyword.put(config, :http, [:inet6, port: port])}
-    else
-      {:ok, config}
-    end
-  end
 end

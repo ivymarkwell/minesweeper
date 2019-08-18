@@ -32,7 +32,7 @@ defmodule Minesweeper.Mixfile do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
-      {:phoenix, "~> 1.4.3"},
+      {:phoenix, "~> 1.4.8", override: true},
       {:phoenix_pubsub, "~> 1.0"},
       {:phoenix_html, "~> 2.10"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},

@@ -5,7 +5,7 @@ defmodule MinesweeperWeb.UserSocket do
   # channel "room:*", MinesweeperWeb.RoomChannel
 
   ## Transports
-  transport(:websocket, Phoenix.Transports.WebSocket)
+  # transport(:websocket, Phoenix.Transports.WebSocket)
   # transport :longpoll, Phoenix.Transports.LongPoll
 
   # Socket params are passed from the client and can
@@ -19,7 +19,8 @@ defmodule MinesweeperWeb.UserSocket do
   #
   # See `Phoenix.Token` documentation for examples in
   # performing token verification on connect.
-  def connect(_params, socket) do
+
+  def connect(_params, socket, _connect_info) do
     {:ok, socket}
   end
 

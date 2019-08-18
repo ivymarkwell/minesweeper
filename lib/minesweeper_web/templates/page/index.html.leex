@@ -22,7 +22,7 @@
           <%= for {{x}, y} <- @rows do %>
             <tr key="<%= x %>"/>
               <%= for {y, mine} <- y do %>
-                <td class="mine"/>
+                <td phx-click="click" class="mine"/>
               <% end %>
             </tr>
           <% end %>
