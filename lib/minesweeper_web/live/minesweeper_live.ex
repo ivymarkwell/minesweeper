@@ -16,7 +16,8 @@ defmodule MinesweeperWeb.MinesweeperLive do
       rows: rows(),
       mine_count: @mine_count,
       time: 0,
-      game_status: "alive"
+      game_status: "alive",
+      game_started: false
     )
   end
 
@@ -47,13 +48,17 @@ defmodule MinesweeperWeb.MinesweeperLive do
   def handle_event("click", key, socket) do
     {:noreply,
     assign(socket,
-      time: socket.assigns.time + 1
+      game_started: true,
     )}
   end
 
   def handle_info(:tick, socket) do
     new_socket = schedule_tick(socket)
-    {:noreply, assign(new_socket, time: new_socket.assigns.time + 1)}
+    if new_socket.assigns.game_started do
+      {:noreply, assign(new_socket, time: new_socket.assigns.time + 1)}
+    else
+      {:noreply, socket}
+    end
   end
 
   def render(assigns) do
