@@ -11,7 +11,7 @@
       </div>
       <div class="time">
         <div class="timer timer<%= rem(@time,10) %>"></div>
-        <div class="timer timer<%= div(@time,10)  %>"></div>
+        <div class="timer timer<%= rem(div(@time,10), 10) %>"></div>
         <div class="timer timer<%= div(@time,100) %>"></div>
       </div>
       <span class="status <%= @game_status %>"/>
@@ -22,7 +22,7 @@
           <%= for {{x}, y} <- @rows do %>
             <tr key="<%= x %>"/>
               <%= for {y, mine} <- y do %>
-                <td phx-click="click" class="mine"/>
+                <td phx-click="click" phx-value-x="<% x %>" phx-value-y="<% y %>" class="mine"/>
               <% end %>
             </tr>
           <% end %>
@@ -30,5 +30,8 @@
       </table>
     </div>
   </div>
+</div>
+<div class="toggle">
+  Toggle flags to mark potential mines
 </div>
 <p><a href="https://github.com/ivymarkwell">Ivy Markwell</a></p>

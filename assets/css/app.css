@@ -1,3 +1,5 @@
+/* layout */
+
 body {
   text-align: center;
   font-family: "sans-serif";
@@ -23,7 +25,7 @@ body {
   border: 3px inset #eee;
   background-color: #bbb;
   text-align: center;
-  font-size: 22px;
+  font-size: 25px;
 }
 
 .flags {
@@ -35,6 +37,13 @@ body {
   background-position: center center;
   height: 16px;
   width: 16px;
+}
+
+.toggle {
+  width: 500px;
+  margin: auto auto;
+  margin-top: 25px;
+  font-size: 20px;
 }
 
 /* face */
