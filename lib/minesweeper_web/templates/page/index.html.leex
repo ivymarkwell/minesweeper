@@ -22,7 +22,7 @@
           <%= for {{x}, y} <- @rows do %>
             <tr key="<%= x %>"/>
               <%= for {y, mine} <- y do %>
-                <td phx-click="click" phx-value-x="<% x %>" phx-value-y="<% y %>" class="mine"/>
+                <td phx-click="mine-click" phx-value-x="<% x %>" phx-value-y="<% y %>" class="mine"/>
               <% end %>
             </tr>
           <% end %>
@@ -31,7 +31,6 @@
     </div>
   </div>
 </div>
-<div class="toggle">
-  Toggle flags to mark potential mines
-</div>
+<h2><%= if @flags_toggled?, do: "Toggle off flags to reveal a square", else: "Toggle on flags to mark potential mines" %></h2>
+<div phx-click="flag-click" class="toggle flag"></div>
 <p><a href="https://github.com/ivymarkwell">Ivy Markwell</a></p>
