@@ -6,10 +6,12 @@ defmodule MinesweeperWeb.MinesweeperLive do
   @mine_count 99
 
   # possible mine states
-  # 0 unmarked
-  # 1 flagged
-  # 2 incorrectly flagged
-  # 3 questioned
+  # exploded mine
+  # field
+  # flag
+  # incorrectly-marked-mine
+  # mine
+  # question
 
   defp new_game(socket) do
     assign(socket,
@@ -17,28 +19,37 @@ defmodule MinesweeperWeb.MinesweeperLive do
       mine_count: @mine_count,
       time: 0,
       game_status: "alive",
-      game_started?: false,
-      flags_toggled?: false
+      game_started?: false
     )
   end
 
   defp generate_mines() do
     for mines <- 1..@mine_count, into: %{} do
-      {{Enum.random(1..16), Enum.random(1..30)}, 0}
+      {{Enum.random(1..16), Enum.random(1..30)}, 1}
     end
   end
 
   defp columns(x, mines) do
     for y <- 1..@columns, into: %{} do
-      {y, Map.get(mines, {x, y})}
+      {y, [Map.get(mines, {x, y}), "mine"]}
     end
   end
 
   defp rows() do
     mines = generate_mines()
     for x <- 1..@rows, into: %{} do
-      {{x}, columns(x, mines)}
+      {x, columns(x, mines)}
     end
+  end
+
+  defp mark_mines(socket, x, y) do
+    x_value = String.to_integer(x)
+    y_value = String.to_integer(y)
+    %{^x_value => %{^y_value => [mine, _mine_state]}} = socket.assigns.rows
+    new_columns = Map.put(socket.assigns.rows[x_value], y_value, [mine, "flag"])
+    new_rows = Map.put(socket.assigns.rows, x_value, new_columns)
+
+    {:noreply, assign(socket, rows: new_rows)}
   end
 
   defp schedule_tick(socket) do
@@ -47,20 +58,15 @@ defmodule MinesweeperWeb.MinesweeperLive do
   end
 
   def handle_event("mine-click", key, socket) do
-    {:noreply,
-    assign(socket,
-      game_started?: true,
-    )}
-  end
-
-  def handle_event("flag-click", key, socket) do
-    %{flags_toggled?: flags_toggled} = socket.assigns
-
-
-    {:noreply,
-    assign(socket,
-      flags_toggled?: !flags_toggled,
-    )}
+    %{"shiftKey" => shiftKey, "x" => x, "y" => y} = key
+    if shiftKey do
+      mark_mines(socket, x, y)
+    else
+      {:noreply,
+      assign(socket,
+        game_started?: true,
+      )}
+    end
   end
 
   def handle_info(:tick, socket) do

@@ -39,14 +39,6 @@ body {
   width: 16px;
 }
 
-.toggle {
-  background-repeat: no-repeat;
-  margin: auto auto;
-  margin-top: 10px;
-  height: 25px;
-  width: 25px;
-}
-
 /* face */
 
 .status {
@@ -156,6 +148,17 @@ td {
   vertical-align: baseline;
 }
 
+.exploded-mine {
+  background-image: url(data:image/gif;base64,R0lGODlhEAAQALMAAAAAAIAAAACAAICAAAAAgIAAgACAgMDAwICAgP8AAAD/AP//AAAA//8A/wD//////ywAAAAAEAAQAAAEOjDJSeupmIIc8sUbSHUBQFLfBKxrFUrlw3bTV7K4Kb3JPaMunGvU09EkKU2GNzkCM0uo5wCgWqvYawQAOw==);
+}
+
+.field {
+  background-repeat: no-repeat;
+  background-position: center center;
+  height: 16px;
+  width: 16px;
+}
+
 .flag {
   background-image: url(data:image/gif;base64,R0lGODlhEAAQALMAAAAAAIAAAACAAICAAAAAgIAAgACAgMDAwICAgP8AAAD/AP//AAAA//8A/wD//////ywAAAAAEAAQAAAEPvDJSSt4J+ut0eVg5mFZYiYBN2pnkG5ribrqV7o0bHNATfK+UE/32ww7OySCqAM4ActDLEREWK9Y7HPL5UYAADs=);
 }
@@ -166,4 +169,8 @@ td {
 
 .mine {
   background-image: url(data:image/gif;base64,R0lGODlhEAAQALMAAAAAAIAAAACAAICAAAAAgIAAgACAgMDAwICAgP8AAAD/AP//AAAA//8A/wD//////ywAAAAAEAAQAAAELPDJSSt4J+ut0eVg5mEhN5bmh3bqepzu266wW9Mzeut5OSLAoFAIKBqPyGIEADs=);
+}
+
+.question {
+  background-image: url(data:image/gif;base64,R0lGODlhEAAQALMAAAAAAIAAAACAAICAAAAAgIAAgACAgMDAwICAgP8AAAD/AP//AAAA//8A/wD//////ywAAAAAEAAQAAAEPvDJSSt4J+ut0eVg5mEaYzLcWBIsQ2xq5sps94HuK95bDvM0nY20Eu6IoSHH90MemMpkE0GtWq2ArHbLzUYA);
 }
