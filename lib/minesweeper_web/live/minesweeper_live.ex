@@ -6,7 +6,7 @@ defmodule MinesweeperWeb.MinesweeperLive do
   @mine_count 99
 
   # possible mine states
-  # exploded mine
+  # exploded-mine
   # field
   # flag
   # incorrectly-marked-mine
@@ -42,6 +42,30 @@ defmodule MinesweeperWeb.MinesweeperLive do
     end
   end
 
+  def explode_mines(socket, x, y) do
+    x_value = String.to_integer(x)
+    y_value = String.to_integer(y)
+
+    %{^x_value => %{^y_value => [mine, old_mine_state]}} = socket.assigns.rows
+
+    # they explode a mine, they lose the game
+    if mine == 1 and (old_mine_state != "flag" || old_mine_state != "question") do
+      new_columns = Map.put(socket.assigns.rows[x_value], y_value, [mine, "exploded-mine"])
+      new_rows = Map.put(socket.assigns.rows, x_value, new_columns)
+
+      {:noreply,
+      assign(socket,
+        game_started?: false,
+        rows: new_rows
+      )}
+    else
+      {:noreply,
+      assign(socket,
+        game_started?: true,
+      )}
+    end
+  end
+
   defp mark_mines(socket, x, y) do
     x_value = String.to_integer(x)
     y_value = String.to_integer(y)
@@ -70,10 +94,7 @@ defmodule MinesweeperWeb.MinesweeperLive do
     if shiftKey do
       mark_mines(socket, x, y)
     else
-      {:noreply,
-      assign(socket,
-        game_started?: true,
-      )}
+      explode_mines(socket, x, y)
     end
   end
 
