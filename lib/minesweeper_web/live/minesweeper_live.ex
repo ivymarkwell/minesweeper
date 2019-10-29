@@ -45,8 +45,16 @@ defmodule MinesweeperWeb.MinesweeperLive do
   defp mark_mines(socket, x, y) do
     x_value = String.to_integer(x)
     y_value = String.to_integer(y)
-    %{^x_value => %{^y_value => [mine, _mine_state]}} = socket.assigns.rows
-    new_columns = Map.put(socket.assigns.rows[x_value], y_value, [mine, "flag"])
+
+    %{^x_value => %{^y_value => [mine, old_mine_state]}} = socket.assigns.rows
+
+    new_mine_state = case old_mine_state do
+      "mine" -> "question"
+      "flag" -> "mine"
+      "question" -> "flag"
+    end
+
+    new_columns = Map.put(socket.assigns.rows[x_value], y_value, [mine, new_mine_state])
     new_rows = Map.put(socket.assigns.rows, x_value, new_columns)
 
     {:noreply, assign(socket, rows: new_rows)}
