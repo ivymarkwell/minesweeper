@@ -19,7 +19,8 @@ defmodule MinesweeperWeb.MinesweeperLive do
       mine_count: @mine_count,
       time: 0,
       game_status: "alive",
-      game_started?: false
+      game_started?: false,
+      game_ended?: false,
     )
   end
 
@@ -56,7 +57,7 @@ defmodule MinesweeperWeb.MinesweeperLive do
 
         {:noreply,
         assign(socket,
-          game_started?: false,
+          game_started?: true,
           rows: new_rows
         )}
         else
@@ -74,6 +75,7 @@ defmodule MinesweeperWeb.MinesweeperLive do
         {:noreply,
         assign(socket,
           game_started?: false,
+          game_ended?: true,
           rows: new_rows
         )}
         else
@@ -119,8 +121,11 @@ defmodule MinesweeperWeb.MinesweeperLive do
     if shiftKey do
       mark_mines(socket, x, y)
     else
-      # TODO: only explode mines if the game is started
-      explode_mines(socket, x, y)
+      if socket.assigns.game_ended? == false do
+        explode_mines(socket, x, y)
+      else
+        {:noreply, socket}
+      end
     end
   end
 
