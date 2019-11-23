@@ -48,21 +48,46 @@ defmodule MinesweeperWeb.MinesweeperLive do
 
     %{^x_value => %{^y_value => [mine, old_mine_state]}} = socket.assigns.rows
 
-    # they explode a mine, they lose the game
-    if mine == 1 and (old_mine_state != "flag" || old_mine_state != "question") do
-      new_columns = Map.put(socket.assigns.rows[x_value], y_value, [mine, "exploded-mine"])
-      new_rows = Map.put(socket.assigns.rows, x_value, new_columns)
+    case mine do
+      nil -> if (old_mine_state != "flag" || old_mine_state != "question") do
+        # TODO: calculate mines around the field, display number instead of empty field
+        new_columns = Map.put(socket.assigns.rows[x_value], y_value, [mine, "field"])
+        new_rows = Map.put(socket.assigns.rows, x_value, new_columns)
 
-      {:noreply,
-      assign(socket,
-        game_started?: false,
-        rows: new_rows
-      )}
-    else
-      {:noreply,
-      assign(socket,
-        game_started?: true,
-      )}
+        {:noreply,
+        assign(socket,
+          game_started?: false,
+          rows: new_rows
+        )}
+        else
+          {:noreply,
+        assign(socket,
+          game_started?: true,
+        )}
+        end
+      1 ->
+        # explode an unmarked mine, lose the game
+        if (old_mine_state != "flag" || old_mine_state != "question") do
+        new_columns = Map.put(socket.assigns.rows[x_value], y_value, [mine, "exploded-mine"])
+        new_rows = Map.put(socket.assigns.rows, x_value, new_columns)
+
+        {:noreply,
+        assign(socket,
+          game_started?: false,
+          rows: new_rows
+        )}
+        else
+          {:noreply,
+        assign(socket,
+          game_started?: true,
+        )}
+        end
+
+      _ ->
+        {:noreply,
+        assign(socket,
+          game_started?: true,
+        )}
     end
   end
 
@@ -94,6 +119,7 @@ defmodule MinesweeperWeb.MinesweeperLive do
     if shiftKey do
       mark_mines(socket, x, y)
     else
+      # TODO: only explode mines if the game is started
       explode_mines(socket, x, y)
     end
   end
