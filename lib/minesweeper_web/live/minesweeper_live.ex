@@ -35,7 +35,7 @@ defmodule MinesweeperWeb.MinesweeperLive do
 
   defp columns(x, mines) do
     for y <- 1..@columns, into: %{} do
-      # TODO change "mine" -> something else? maybe "unmarked"?
+      # TODO: change "mine" -> something else? maybe "unmarked"?
       {y, [Map.get(mines, {x, y}), "mine"]}
     end
   end
@@ -53,26 +53,47 @@ defmodule MinesweeperWeb.MinesweeperLive do
     nearby_values = [-1, 0, 1]
 
     Enum.reduce(nearby_values, 0, fn x, total_count ->
-      column_count =
-        Enum.reduce(nearby_values, 0, fn y, column_count ->
+      Enum.reduce(nearby_values, total_count, fn y, column_count ->
+        nearby_x = x_value + x
+        nearby_y = y_value + y
+
+        with %{^nearby_x => %{^nearby_y => [1, _mine_state]}} <- rows do
+          column_count + 1
+        else
+          _ -> column_count
+        end
+      end)
+    end)
+  end
+
+  defp calculate_new_columns_and_rows(mine, old_rows, x_value, y_value) do
+    num_nearby_mines = calculate_nearby_mines(old_rows, x_value, y_value)
+    values = [x_value, y_value]
+    IO.inspect(values, label: "values")
+    IO.inspect(num_nearby_mines, label: "num nearby mines")
+    if num_nearby_mines === 0 do
+      nearby_values = [-1, 0, 1]
+      # for nearby_values ...
+      Enum.reduce(nearby_values, old_rows, fn x, new_rows ->
+        Enum.reduce(nearby_values, new_rows, fn y, rows ->
           nearby_x = x_value + x
           nearby_y = y_value + y
 
-          with %{^nearby_x => %{^nearby_y => [mine, _old_mine_state]}} <- rows do
-            case mine do
-              1 ->
-                column_count + 1
+          with %{^nearby_x => %{^nearby_y => [nearby_mine, "mine"]}} <- rows do
+            new_columns = Map.put(rows[nearby_x], nearby_y, [nearby_mine, "mines0"])
+            new_rows = Map.put(rows, x_value, new_columns)
 
-              _ ->
-                column_count
-            end
+            calculate_new_columns_and_rows(nearby_mine, new_rows, nearby_x, nearby_y)
           else
-            _ -> column_count
+            _ ->
+              rows
           end
         end)
-
-      total_count + column_count
-    end)
+      end)
+    else
+      new_columns = Map.put(old_rows[x_value], y_value, [mine, "mines#{num_nearby_mines}"])
+      Map.put(old_rows, x_value, new_columns)
+    end
   end
 
   def explode_mines(socket, x, y) do
@@ -87,10 +108,7 @@ defmodule MinesweeperWeb.MinesweeperLive do
       # the updated field should display the number of nearby mines
       nil ->
         if old_mine_state != "flag" || old_mine_state != "question" do
-          num_nearby_mines = calculate_nearby_mines(socket.assigns.rows, x_value, y_value)
-          # TODO: display number instead of empty field
-          new_columns = Map.put(socket.assigns.rows[x_value], y_value, [mine, "field"])
-          new_rows = Map.put(socket.assigns.rows, x_value, new_columns)
+          new_rows = calculate_new_columns_and_rows(mine, socket.assigns.rows, x_value, y_value)
 
           {:noreply,
            assign(socket,
@@ -140,6 +158,7 @@ defmodule MinesweeperWeb.MinesweeperLive do
 
     %{^x_value => %{^y_value => [mine, old_mine_state]}} = socket.assigns.rows
 
+    # TODO: when you flag a mine subtract from # mines
     new_mine_state =
       case old_mine_state do
         "mine" -> "question"
