@@ -6,11 +6,11 @@ defmodule MinesweeperWeb.MinesweeperLive do
   @mine_count 99
 
   # possible mine states
-  # exploded-mine
+  # unchecked
   # field
+  # exploded-mine
   # flag
   # incorrectly-marked-mine
-  # mine
   # question
 
   # TODO: clean up in general
@@ -35,8 +35,7 @@ defmodule MinesweeperWeb.MinesweeperLive do
 
   defp columns(x, mines) do
     for y <- 1..@columns, into: %{} do
-      # TODO: change "mine" -> something else? maybe "unmarked"?
-      {y, [Map.get(mines, {x, y}), "mine"]}
+      {y, [Map.get(mines, {x, y}), "unchecked"]}
     end
   end
 
@@ -66,18 +65,17 @@ defmodule MinesweeperWeb.MinesweeperLive do
   end
 
   defp calculate_new_columns_and_rows(mine, old_rows, x_value, y_value) do
+    nearby_values = [-1, 0, 1]
     num_nearby_mines = calculate_nearby_mines(old_rows, x_value, y_value)
 
     if num_nearby_mines === 0 do
-      nearby_values = [-1, 0, 1]
-      # for nearby_values ...
       Enum.reduce(nearby_values, old_rows, fn x, new_rows ->
         Enum.reduce(nearby_values, new_rows, fn y, rows ->
           nearby_x = x_value + x
           nearby_y = y_value + y
 
-          with %{^nearby_x => %{^nearby_y => [nearby_mine = nil, "mine"]}} <- rows do
-            new_columns = Map.put(rows[x_value], y_value, [mine, "mines0"])
+          with %{^nearby_x => %{^nearby_y => [nearby_mine = nil, "unchecked"]}} <- rows do
+            new_columns = Map.put(rows[x_value], y_value, [mine, "field"])
             new_rows = Map.put(rows, x_value, new_columns)
 
             calculate_new_columns_and_rows(nearby_mine, new_rows, nearby_x, nearby_y)
@@ -155,18 +153,29 @@ defmodule MinesweeperWeb.MinesweeperLive do
 
     %{^x_value => %{^y_value => [mine, old_mine_state]}} = socket.assigns.rows
 
-    # TODO: when you flag a mine subtract from # mines
     new_mine_state =
       case old_mine_state do
-        "mine" -> "question"
-        "flag" -> "mine"
+        "unchecked" -> "question"
+        "flag" -> "unchecked"
         "question" -> "flag"
       end
 
     new_columns = Map.put(socket.assigns.rows[x_value], y_value, [mine, new_mine_state])
     new_rows = Map.put(socket.assigns.rows, x_value, new_columns)
 
-    {:noreply, assign(socket, rows: new_rows)}
+    new_mine_count =
+      case new_mine_state do
+        "unchecked" ->
+          socket.assigns.mine_count + 1
+
+        "flag" ->
+          socket.assigns.mine_count - 1
+
+        _ ->
+          socket.assigns.mine_count
+      end
+
+    {:noreply, assign(socket, mine_count: new_mine_count, rows: new_rows)}
   end
 
   defp schedule_tick(socket) do
@@ -206,8 +215,6 @@ defmodule MinesweeperWeb.MinesweeperLive do
     socket =
       socket
       |> new_game()
-
-    IO.inspect(socket.assigns.rows)
 
     if connected?(socket) do
       {:ok, schedule_tick(socket)}
