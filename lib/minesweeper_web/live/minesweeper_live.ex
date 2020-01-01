@@ -15,9 +15,9 @@ defmodule MinesweeperWeb.MinesweeperLive do
 
   # TODO: clean up in general
 
-  defp new_game(socket) do
+  defp new_game(socket, initial_x, initial_y) do
     assign(socket,
-      rows: rows(),
+      rows: rows(initial_x, initial_y),
       mine_count: @mine_count,
       time: 0,
       game_status: "alive",
@@ -26,24 +26,47 @@ defmodule MinesweeperWeb.MinesweeperLive do
     )
   end
 
-  # TODO: generate the mines after the first mine is clicked
-  defp generate_mines() do
-    for mines <- 1..@mine_count, into: %{} do
-      {{Enum.random(1..16), Enum.random(1..30)}, 1}
-    end
+  defp generate_random_coordinates(mines, initial_x, initial_y) do
+    random_x = Enum.random(1..@rows)
+    random_y = Enum.random(1..@columns)
+
+    final_coordinates =
+      if [random_x, random_y] == [initial_x, initial_y] ||
+           Enum.member?(mines, [random_x, random_y]) do
+        generate_random_coordinates(mines, initial_x, initial_y)
+      else
+        [random_x, random_y]
+      end
+
+    final_coordinates
   end
 
-  defp columns(x, mines) do
+  defp generate_mines(initial_x, initial_y) do
+    mine_iterations = Enum.to_list(1..99)
+
+    Enum.reduce(mine_iterations, [], fn _mine, mines ->
+      [generate_random_coordinates(mines, initial_x, initial_y)] ++ mines
+    end)
+  end
+
+  defp columns(mines, x, initial_x, initial_y) do
     for y <- 1..@columns, into: %{} do
-      {y, [Map.get(mines, {x, y}), "unchecked"]}
+      mine_value =
+        if Enum.member?(mines, [x, y]) do
+          1
+        else
+          nil
+        end
+
+      {y, [mine_value, "unchecked"]}
     end
   end
 
-  defp rows() do
-    mines = generate_mines()
+  defp rows(initial_x, initial_y) do
+    mines = generate_mines(initial_x, initial_y)
 
     for x <- 1..@rows, into: %{} do
-      {x, columns(x, mines)}
+      {x, columns(mines, x, initial_x, initial_y)}
     end
   end
 
@@ -91,10 +114,7 @@ defmodule MinesweeperWeb.MinesweeperLive do
     end
   end
 
-  def explode_mines(socket, x, y) do
-    x_value = String.to_integer(x)
-    y_value = String.to_integer(y)
-
+  defp explode_mines(socket, x_value, y_value) do
     %{^x_value => %{^y_value => [mine, old_mine_state]}} = socket.assigns.rows
 
     # check if there's a mine
@@ -189,8 +209,17 @@ defmodule MinesweeperWeb.MinesweeperLive do
     if shiftKey do
       mark_mines(socket, x, y)
     else
+      x_value = String.to_integer(x)
+      y_value = String.to_integer(y)
+
+      # generate mines after first field is clicked
+      if socket.assigns.game_started? == false do
+        socket
+        |> new_game(x_value, y_value)
+      end
+
       if socket.assigns.game_ended? == false do
-        explode_mines(socket, x, y)
+        explode_mines(socket, x_value, y_value)
       else
         {:noreply, socket}
       end
@@ -214,7 +243,7 @@ defmodule MinesweeperWeb.MinesweeperLive do
   def mount(session, socket) do
     socket =
       socket
-      |> new_game()
+      |> new_game(1, 1)
 
     if connected?(socket) do
       {:ok, schedule_tick(socket)}
