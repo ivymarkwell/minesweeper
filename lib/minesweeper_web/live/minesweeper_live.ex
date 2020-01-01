@@ -48,7 +48,6 @@ defmodule MinesweeperWeb.MinesweeperLive do
     end
   end
 
-  # TODO: that thing where if there are NO nearby mines, it explodes a bunch of them??
   defp calculate_nearby_mines(rows, x_value, y_value) do
     nearby_values = [-1, 0, 1]
 
@@ -68,9 +67,7 @@ defmodule MinesweeperWeb.MinesweeperLive do
 
   defp calculate_new_columns_and_rows(mine, old_rows, x_value, y_value) do
     num_nearby_mines = calculate_nearby_mines(old_rows, x_value, y_value)
-    values = [x_value, y_value]
-    IO.inspect(values, label: "values")
-    IO.inspect(num_nearby_mines, label: "num nearby mines")
+
     if num_nearby_mines === 0 do
       nearby_values = [-1, 0, 1]
       # for nearby_values ...
@@ -79,8 +76,8 @@ defmodule MinesweeperWeb.MinesweeperLive do
           nearby_x = x_value + x
           nearby_y = y_value + y
 
-          with %{^nearby_x => %{^nearby_y => [nearby_mine, "mine"]}} <- rows do
-            new_columns = Map.put(rows[nearby_x], nearby_y, [nearby_mine, "mines0"])
+          with %{^nearby_x => %{^nearby_y => [nearby_mine = nil, "mine"]}} <- rows do
+            new_columns = Map.put(rows[x_value], y_value, [mine, "mines0"])
             new_rows = Map.put(rows, x_value, new_columns)
 
             calculate_new_columns_and_rows(nearby_mine, new_rows, nearby_x, nearby_y)
@@ -209,6 +206,8 @@ defmodule MinesweeperWeb.MinesweeperLive do
     socket =
       socket
       |> new_game()
+
+    IO.inspect(socket.assigns.rows)
 
     if connected?(socket) do
       {:ok, schedule_tick(socket)}
