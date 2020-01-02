@@ -49,7 +49,7 @@ defmodule MinesweeperWeb.MinesweeperLive do
     end)
   end
 
-  defp columns(mines, x, initial_x, initial_y) do
+  defp columns(mines, x) do
     for y <- 1..@columns, into: %{} do
       mine_value =
         if Enum.member?(mines, [x, y]) do
@@ -66,7 +66,7 @@ defmodule MinesweeperWeb.MinesweeperLive do
     mines = generate_mines(initial_x, initial_y)
 
     for x <- 1..@rows, into: %{} do
-      {x, columns(mines, x, initial_x, initial_y)}
+      {x, columns(mines, x)}
     end
   end
 
@@ -212,10 +212,12 @@ defmodule MinesweeperWeb.MinesweeperLive do
       x_value = String.to_integer(x)
       y_value = String.to_integer(y)
 
-      # generate mines after first field is clicked
-      if socket.assigns.game_started? == false do
+      # regenerate mines after first field is clicked to prevent first move ending the game
+      socket = if socket.assigns.game_started? == false and x != 1 and y != 1 do
         socket
         |> new_game(x_value, y_value)
+      else
+        socket
       end
 
       if socket.assigns.game_ended? == false do
@@ -241,6 +243,7 @@ defmodule MinesweeperWeb.MinesweeperLive do
   end
 
   def mount(session, socket) do
+    # randomly generate mines
     socket =
       socket
       |> new_game(1, 1)
