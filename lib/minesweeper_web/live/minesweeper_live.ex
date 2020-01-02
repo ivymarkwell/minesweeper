@@ -147,6 +147,7 @@ defmodule MinesweeperWeb.MinesweeperLive do
            assign(socket,
              game_started?: false,
              game_ended?: true,
+             game_status: "dead",
              rows: new_rows
            )}
 
