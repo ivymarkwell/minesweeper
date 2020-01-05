@@ -70,6 +70,23 @@ defmodule MinesweeperWeb.MinesweeperLive do
     end
   end
 
+  defp won_game?(rows) do
+    !Enum.any?(rows, fn row ->
+      {_column_num, column_map} = row
+      Enum.any?(column_map, fn column ->
+        {_y, [mine_value, mine_state]} = column
+
+        if mine_state == "unchecked" && mine_value == nil  do
+          true
+        else
+          false
+        end
+      end
+      )
+    end
+    )
+  end
+
   defp calculate_nearby_mines(rows, x_value, y_value) do
     nearby_values = [-1, 0, 1]
 
@@ -125,11 +142,24 @@ defmodule MinesweeperWeb.MinesweeperLive do
         if old_mine_state != "flag" || old_mine_state != "question" do
           new_rows = calculate_new_columns_and_rows(mine, socket.assigns.rows, x_value, y_value)
 
+          if won_game?(new_rows) do
+            {:noreply,
+            assign(socket,
+              game_started?: false,
+              game_ended?: true,
+              game_status: "won",
+              rows: new_rows
+            )}
+
+
+        else
           {:noreply,
            assign(socket,
              game_started?: true,
              rows: new_rows
            )}
+        end
+
         else
           {:noreply,
            assign(socket,

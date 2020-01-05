@@ -140,6 +140,14 @@ td {
   vertical-align: baseline;
 }
 
+tr {
+  height: 16px;
+}
+
+td {
+  width: 16px;
+}
+
 .exploded-mine {
   background-image: url(data:image/gif;base64,R0lGODlhEAAQALMAAAAAAIAAAACAAICAAAAAgIAAgACAgMDAwICAgP8AAAD/AP//AAAA//8A/wD//////ywAAAAAEAAQAAAEOjDJSeupmIIc8sUbSHUBQFLfBKxrFUrlw3bTV7K4Kb3JPaMunGvU09EkKU2GNzkCM0uo5wCgWqvYawQAOw==);
 }
