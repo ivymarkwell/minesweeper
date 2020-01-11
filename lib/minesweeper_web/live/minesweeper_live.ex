@@ -130,6 +130,26 @@ defmodule MinesweeperWeb.MinesweeperLive do
     end
   end
 
+  def reveal_all_mines(old_rows) do
+    # when you lose the game, reveal all mines
+
+    num_rows = Enum.to_list(1..@rows)
+    num_columns = Enum.to_list(1..@columns)
+
+    Enum.reduce(num_rows, old_rows, fn x, new_rows ->
+      Enum.reduce(num_columns, new_rows, fn y, new_rows ->
+        %{^x => %{^y => [mine, old_mine_state]}} = new_rows
+
+        if mine == 1 and old_mine_state == "unchecked" do
+          new_columns = Map.put(new_rows[x], y, [mine, "exploded-mine"])
+          new_rows = Map.put(new_rows, x, new_columns)
+        else
+          new_rows
+        end
+      end)
+    end)
+  end
+
   defp explode_mines(socket, x_value, y_value) do
     %{^x_value => %{^y_value => [mine, old_mine_state]}} = socket.assigns.rows
 
@@ -166,8 +186,7 @@ defmodule MinesweeperWeb.MinesweeperLive do
       1 ->
         # explode an unmarked mine, lose the game
         if old_mine_state != "flag" && old_mine_state != "question" do
-          new_columns = Map.put(socket.assigns.rows[x_value], y_value, [mine, "exploded-mine"])
-          new_rows = Map.put(socket.assigns.rows, x_value, new_columns)
+          new_rows = reveal_all_mines(socket.assigns.rows)
 
           {:noreply,
            assign(socket,
@@ -251,6 +270,13 @@ defmodule MinesweeperWeb.MinesweeperLive do
         {:noreply, socket}
       end
     end
+  end
+
+  def handle_event("restart-game", key, socket) do
+    # randomly generate mines
+    socket =
+      socket
+      |> new_game(1, 1)
   end
 
   def handle_info(:tick, socket) do

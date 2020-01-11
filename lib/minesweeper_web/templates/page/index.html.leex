@@ -14,7 +14,7 @@
         <div class="timer timer<%= rem(div(@time,10), 10) %>"></div>
         <div class="timer timer<%= div(@time,100) %>"></div>
       </div>
-      <span class="status <%= @game_status %>"/>
+      <span phx-click="restart-game" class="status <%= @game_status %>"/>
     </div>
     <div class="bottom">
       <table>
