@@ -130,7 +130,7 @@ defmodule MinesweeperWeb.MinesweeperLive do
     end
   end
 
-  def reveal_all_mines(old_rows) do
+  defp reveal_all_mines(old_rows) do
     # when you lose the game, reveal all mines
 
     num_rows = Enum.to_list(1..@rows)
@@ -257,8 +257,8 @@ defmodule MinesweeperWeb.MinesweeperLive do
       mark_mines(socket, x_value, y_value)
     else
       # regenerate mines after first field is clicked to prevent first move ending the game
-      value = socket.assigns.game_started? == false and x_value != 1 or y_value != 1
       if socket.assigns.game_started? == false and x_value != 1 and y_value != 1 do
+        socket =
         socket
         |> new_game(x_value, y_value)
       else
