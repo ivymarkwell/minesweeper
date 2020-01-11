@@ -132,7 +132,6 @@ defmodule MinesweeperWeb.MinesweeperLive do
 
   defp explode_mines(socket, x_value, y_value) do
     %{^x_value => %{^y_value => [mine, old_mine_state]}} = socket.assigns.rows
-    IO.inspect(old_mine_state, label: "old mine state...")
 
     # check if there's a mine
     case mine do
@@ -221,6 +220,7 @@ defmodule MinesweeperWeb.MinesweeperLive do
           socket.assigns.mine_count
       end
 
+
     {:noreply, assign(socket, game_started?: true, mine_count: new_mine_count, rows: new_rows)}
   end
 
@@ -235,11 +235,10 @@ defmodule MinesweeperWeb.MinesweeperLive do
     x_value = String.to_integer(x)
     y_value = String.to_integer(y)
 
-    if shiftKey do
+    if shiftKey == true do
       mark_mines(socket, x_value, y_value)
-    end
-
-    # regenerate mines after first field is clicked to prevent first move ending the game
+    else
+          # regenerate mines after first field is clicked to prevent first move ending the game
     if socket.assigns.game_started? == false && x != 1 && y != 1 do
       socket
       |> new_game(x_value, y_value)
@@ -251,6 +250,7 @@ defmodule MinesweeperWeb.MinesweeperLive do
       explode_mines(socket, x_value, y_value)
     else
       {:noreply, socket}
+    end
     end
   end
 
