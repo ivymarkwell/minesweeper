@@ -73,18 +73,17 @@ defmodule MinesweeperWeb.MinesweeperLive do
   defp won_game?(rows) do
     !Enum.any?(rows, fn row ->
       {_column_num, column_map} = row
+
       Enum.any?(column_map, fn column ->
         {_y, [mine_value, mine_state]} = column
 
-        if mine_state == "unchecked" && mine_value == nil  do
+        if mine_state == "unchecked" && mine_value == nil do
           true
         else
           false
         end
-      end
-      )
-    end
-    )
+      end)
+    end)
   end
 
   defp calculate_nearby_mines(rows, x_value, y_value) do
@@ -133,33 +132,31 @@ defmodule MinesweeperWeb.MinesweeperLive do
 
   defp explode_mines(socket, x_value, y_value) do
     %{^x_value => %{^y_value => [mine, old_mine_state]}} = socket.assigns.rows
+    IO.inspect(old_mine_state, label: "old mine state...")
 
     # check if there's a mine
     case mine do
       # if there's no mine, and the field isn't marked, update the field
       # the updated field should display the number of nearby mines
       nil ->
-        if old_mine_state != "flag" || old_mine_state != "question" do
+        if old_mine_state != "flag" && old_mine_state != "question" do
           new_rows = calculate_new_columns_and_rows(mine, socket.assigns.rows, x_value, y_value)
 
           if won_game?(new_rows) do
             {:noreply,
-            assign(socket,
-              game_started?: false,
-              game_ended?: true,
-              game_status: "won",
-              rows: new_rows
-            )}
-
-
-        else
-          {:noreply,
-           assign(socket,
-             game_started?: true,
-             rows: new_rows
-           )}
-        end
-
+             assign(socket,
+               game_started?: false,
+               game_ended?: true,
+               game_status: "won",
+               rows: new_rows
+             )}
+          else
+            {:noreply,
+             assign(socket,
+               game_started?: true,
+               rows: new_rows
+             )}
+          end
         else
           {:noreply,
            assign(socket,
@@ -169,7 +166,7 @@ defmodule MinesweeperWeb.MinesweeperLive do
 
       1 ->
         # explode an unmarked mine, lose the game
-        if old_mine_state != "flag" || old_mine_state != "question" do
+        if old_mine_state != "flag" && old_mine_state != "question" do
           new_columns = Map.put(socket.assigns.rows[x_value], y_value, [mine, "exploded-mine"])
           new_rows = Map.put(socket.assigns.rows, x_value, new_columns)
 
@@ -198,10 +195,7 @@ defmodule MinesweeperWeb.MinesweeperLive do
     end
   end
 
-  defp mark_mines(socket, x, y) do
-    x_value = String.to_integer(x)
-    y_value = String.to_integer(y)
-
+  defp mark_mines(socket, x_value, y_value) do
     %{^x_value => %{^y_value => [mine, old_mine_state]}} = socket.assigns.rows
 
     new_mine_state =
@@ -209,6 +203,7 @@ defmodule MinesweeperWeb.MinesweeperLive do
         "unchecked" -> "question"
         "flag" -> "unchecked"
         "question" -> "flag"
+        _ -> old_mine_state
       end
 
     new_columns = Map.put(socket.assigns.rows[x_value], y_value, [mine, new_mine_state])
@@ -226,7 +221,7 @@ defmodule MinesweeperWeb.MinesweeperLive do
           socket.assigns.mine_count
       end
 
-    {:noreply, assign(socket, mine_count: new_mine_count, rows: new_rows)}
+    {:noreply, assign(socket, game_started?: true, mine_count: new_mine_count, rows: new_rows)}
   end
 
   defp schedule_tick(socket) do
@@ -237,25 +232,25 @@ defmodule MinesweeperWeb.MinesweeperLive do
   def handle_event("mine-click", key, socket) do
     %{"shiftKey" => shiftKey, "x" => x, "y" => y} = key
 
+    x_value = String.to_integer(x)
+    y_value = String.to_integer(y)
+
     if shiftKey do
-      mark_mines(socket, x, y)
+      mark_mines(socket, x_value, y_value)
+    end
+
+    # regenerate mines after first field is clicked to prevent first move ending the game
+    if socket.assigns.game_started? == false && x != 1 && y != 1 do
+      socket
+      |> new_game(x_value, y_value)
     else
-      x_value = String.to_integer(x)
-      y_value = String.to_integer(y)
+      socket
+    end
 
-      # regenerate mines after first field is clicked to prevent first move ending the game
-      socket = if socket.assigns.game_started? == false and x != 1 and y != 1 do
-        socket
-        |> new_game(x_value, y_value)
-      else
-        socket
-      end
-
-      if socket.assigns.game_ended? == false do
-        explode_mines(socket, x_value, y_value)
-      else
-        {:noreply, socket}
-      end
+    if socket.assigns.game_ended? == false && !shiftKey do
+      explode_mines(socket, x_value, y_value)
+    else
+      {:noreply, socket}
     end
   end
 
