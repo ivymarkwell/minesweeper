@@ -77,7 +77,7 @@ defmodule MinesweeperWeb.MinesweeperLive do
       Enum.any?(column_map, fn column ->
         {_y, [mine_value, mine_state]} = column
 
-        if mine_state == "unchecked" && mine_value == nil do
+        if mine_state == "unchecked" and mine_value == nil do
           true
         else
           false
@@ -158,7 +158,7 @@ defmodule MinesweeperWeb.MinesweeperLive do
       # if there's no mine, and the field isn't marked, update the field
       # the updated field should display the number of nearby mines
       nil ->
-        if old_mine_state != "flag" && old_mine_state != "question" do
+        if old_mine_state != "flag" and old_mine_state != "question" do
           new_rows = calculate_new_columns_and_rows(mine, socket.assigns.rows, x_value, y_value)
 
           if won_game?(new_rows) do
@@ -185,7 +185,7 @@ defmodule MinesweeperWeb.MinesweeperLive do
 
       1 ->
         # explode an unmarked mine, lose the game
-        if old_mine_state != "flag" && old_mine_state != "question" do
+        if old_mine_state != "flag" and old_mine_state != "question" do
           new_rows = reveal_all_mines(socket.assigns.rows)
 
           {:noreply,
@@ -257,14 +257,15 @@ defmodule MinesweeperWeb.MinesweeperLive do
       mark_mines(socket, x_value, y_value)
     else
       # regenerate mines after first field is clicked to prevent first move ending the game
-      if socket.assigns.game_started? == false && x != 1 && y != 1 do
+      value = socket.assigns.game_started? == false and x_value != 1 or y_value != 1
+      if socket.assigns.game_started? == false and x_value != 1 and y_value != 1 do
         socket
         |> new_game(x_value, y_value)
       else
         socket
       end
 
-      if socket.assigns.game_ended? == false && !shiftKey do
+      if socket.assigns.game_ended? == false and !shiftKey do
         explode_mines(socket, x_value, y_value)
       else
         {:noreply, socket}
