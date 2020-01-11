@@ -1,7 +1,6 @@
 # Minesweeper
 
-![Minesweeper preview](assets/static/images/game_preview.png "Minesweeper Preview")
-![Minesweeper game play](assets/static/images/game_play.png "Minesweeper Game Play")
+![Minesweeper preview](assets/static/images/game_play.png "Minesweeper Preview")
 
 Built using Elixir Phoeinix LiveView.
 
