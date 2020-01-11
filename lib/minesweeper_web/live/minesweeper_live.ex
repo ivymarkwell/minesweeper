@@ -268,7 +268,7 @@ defmodule MinesweeperWeb.MinesweeperLive do
     MinesweeperWeb.PageView.render("index.html", assigns)
   end
 
-  def mount(session, socket) do
+  def mount(_session, socket) do
     # randomly generate mines
     socket =
       socket
