@@ -257,13 +257,13 @@ defmodule MinesweeperWeb.MinesweeperLive do
       mark_mines(socket, x_value, y_value)
     else
       # regenerate mines after first field is clicked to prevent first move ending the game
-      if socket.assigns.game_started? == false and x_value != 1 and y_value != 1 do
-        socket =
-        socket
-        |> new_game(x_value, y_value)
-      else
-        socket
-      end
+      socket =
+        if socket.assigns.game_started? == false and (x_value != 1 or y_value != 1) do
+          socket
+          |> new_game(x_value, y_value)
+        else
+          socket
+        end
 
       if socket.assigns.game_ended? == false and !shiftKey do
         explode_mines(socket, x_value, y_value)
