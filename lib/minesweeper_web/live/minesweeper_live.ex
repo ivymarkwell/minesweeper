@@ -220,7 +220,6 @@ defmodule MinesweeperWeb.MinesweeperLive do
           socket.assigns.mine_count
       end
 
-
     {:noreply, assign(socket, game_started?: true, mine_count: new_mine_count, rows: new_rows)}
   end
 
@@ -235,22 +234,22 @@ defmodule MinesweeperWeb.MinesweeperLive do
     x_value = String.to_integer(x)
     y_value = String.to_integer(y)
 
-    if shiftKey == true do
+    if shiftKey do
       mark_mines(socket, x_value, y_value)
     else
-          # regenerate mines after first field is clicked to prevent first move ending the game
-    if socket.assigns.game_started? == false && x != 1 && y != 1 do
-      socket
-      |> new_game(x_value, y_value)
-    else
-      socket
-    end
+      # regenerate mines after first field is clicked to prevent first move ending the game
+      if socket.assigns.game_started? == false && x != 1 && y != 1 do
+        socket
+        |> new_game(x_value, y_value)
+      else
+        socket
+      end
 
-    if socket.assigns.game_ended? == false && !shiftKey do
-      explode_mines(socket, x_value, y_value)
-    else
-      {:noreply, socket}
-    end
+      if socket.assigns.game_ended? == false && !shiftKey do
+        explode_mines(socket, x_value, y_value)
+      else
+        {:noreply, socket}
+      end
     end
   end
 
