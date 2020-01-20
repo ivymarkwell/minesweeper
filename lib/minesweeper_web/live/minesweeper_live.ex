@@ -132,7 +132,6 @@ defmodule MinesweeperWeb.MinesweeperLive do
 
   defp reveal_all_mines(old_rows) do
     # when you lose the game, reveal all mines
-
     num_rows = Enum.to_list(1..@rows)
     num_columns = Enum.to_list(1..@columns)
 
@@ -140,7 +139,8 @@ defmodule MinesweeperWeb.MinesweeperLive do
       Enum.reduce(num_columns, new_rows, fn y, new_rows ->
         %{^x => %{^y => [mine, old_mine_state]}} = new_rows
 
-        if mine == 1 and old_mine_state == "unchecked" do
+        mine_states_to_reveal = ["flag", "question", "unchecked"]
+        if mine == 1 and old_mine_state in mine_states_to_reveal do
           new_columns = Map.put(new_rows[x], y, [mine, "exploded-mine"])
           new_rows = Map.put(new_rows, x, new_columns)
         else
