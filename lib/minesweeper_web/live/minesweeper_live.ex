@@ -248,7 +248,13 @@ defmodule MinesweeperWeb.MinesweeperLive do
           [socket.assigns.flag_count, socket.assigns.mine_count]
       end
 
-    {:noreply, assign(socket, game_started?: true, flag_count: new_flag_count, mine_count: new_mine_count, rows: new_rows)}
+    {:noreply,
+     assign(socket,
+       game_started?: true,
+       flag_count: new_flag_count,
+       mine_count: new_mine_count,
+       rows: new_rows
+     )}
   end
 
   defp schedule_tick(socket) do
@@ -284,15 +290,19 @@ defmodule MinesweeperWeb.MinesweeperLive do
 
   def handle_event("restart-game", _key, socket) do
     # randomly generate mines
-    socket
-    |> new_game(1, 1)
+    new_socket =
+      socket
+      |> new_game(1, 1)
+
+    {:noreply, new_socket}
   end
 
   def handle_info(:tick, socket) do
     new_socket = schedule_tick(socket)
 
     if new_socket.assigns.game_started? do
-      {:noreply, assign(new_socket, time: new_socket.assigns.time + 1)}
+      new_time = if new_socket.assigns.time < 999, do: new_socket.assigns.time + 1, else: new_socket.assigns.time
+      {:noreply, assign(new_socket, time: new_time)}
     else
       {:noreply, socket}
     end
