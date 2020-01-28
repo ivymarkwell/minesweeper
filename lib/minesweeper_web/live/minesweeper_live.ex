@@ -10,7 +10,6 @@ defmodule MinesweeperWeb.MinesweeperLive do
   # field
   # exploded-mine
   # flag
-  # incorrectly-marked-mine
   # question
 
   # TODO: clean up in general
@@ -18,6 +17,7 @@ defmodule MinesweeperWeb.MinesweeperLive do
   defp new_game(socket, initial_x, initial_y) do
     assign(socket,
       rows: rows(initial_x, initial_y),
+      flag_count: 0,
       mine_count: @mine_count,
       time: 0,
       game_status: "alive",
@@ -140,9 +140,10 @@ defmodule MinesweeperWeb.MinesweeperLive do
         %{^x => %{^y => [mine, old_mine_state]}} = new_rows
 
         mine_states_to_reveal = ["flag", "question", "unchecked"]
+
         if mine == 1 and old_mine_state in mine_states_to_reveal do
           new_columns = Map.put(new_rows[x], y, [mine, "exploded-mine"])
-          new_rows = Map.put(new_rows, x, new_columns)
+          Map.put(new_rows, x, new_columns)
         else
           new_rows
         end
@@ -227,19 +228,27 @@ defmodule MinesweeperWeb.MinesweeperLive do
     new_columns = Map.put(socket.assigns.rows[x_value], y_value, [mine, new_mine_state])
     new_rows = Map.put(socket.assigns.rows, x_value, new_columns)
 
-    new_mine_count =
+    [new_flag_count, new_mine_count] =
       case new_mine_state do
         "unchecked" ->
-          socket.assigns.mine_count + 1
+          if socket.assigns.flag_count > 99 do
+            [socket.assigns.flag_count - 1, socket.assigns.mine_count]
+          else
+            [socket.assigns.flag_count - 1, socket.assigns.mine_count + 1]
+          end
 
         "flag" ->
-          socket.assigns.mine_count - 1
+          if socket.assigns.mine_count == 0 do
+            [socket.assigns.flag_count + 1, socket.assigns.mine_count]
+          else
+            [socket.assigns.flag_count + 1, socket.assigns.mine_count - 1]
+          end
 
         _ ->
-          socket.assigns.mine_count
+          [socket.assigns.flag_count, socket.assigns.mine_count]
       end
 
-    {:noreply, assign(socket, game_started?: true, mine_count: new_mine_count, rows: new_rows)}
+    {:noreply, assign(socket, game_started?: true, flag_count: new_flag_count, mine_count: new_mine_count, rows: new_rows)}
   end
 
   defp schedule_tick(socket) do
@@ -273,11 +282,10 @@ defmodule MinesweeperWeb.MinesweeperLive do
     end
   end
 
-  def handle_event("restart-game", key, socket) do
+  def handle_event("restart-game", _key, socket) do
     # randomly generate mines
-    socket =
-      socket
-      |> new_game(1, 1)
+    socket
+    |> new_game(1, 1)
   end
 
   def handle_info(:tick, socket) do
