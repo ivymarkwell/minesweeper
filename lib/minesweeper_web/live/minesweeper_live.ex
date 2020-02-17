@@ -274,7 +274,7 @@ defmodule MinesweeperWeb.MinesweeperLive do
 
     socket =
     # regenerate mines if the first field clicked is a mine
-      if mine == 1 and socket.assigns.game_started? == false do
+      if mine == 1 and socket.assigns.game_started? == false and socket.assigns.game_ended? == false do
         socket
         |> new_game(x_value, y_value)
       else
