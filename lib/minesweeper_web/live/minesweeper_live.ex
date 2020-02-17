@@ -326,9 +326,12 @@ defmodule MinesweeperWeb.MinesweeperLive do
 
   def mount(_session, socket) do
     # randomly generate mines
+    random_initial_x = Enum.random(1..@rows)
+    random_initial_y = Enum.random(1..@columns)
+
     socket =
       socket
-      |> new_game(1, 1)
+      |> new_game(random_initial_x, random_initial_y)
 
     if connected?(socket) do
       {:ok, schedule_tick(socket)}
