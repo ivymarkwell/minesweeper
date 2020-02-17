@@ -41,6 +41,8 @@ defmodule MinesweeperWeb.MinesweeperLive do
     final_coordinates
   end
 
+  # this function takes an initial x and y position
+  # used to to prevent the player from starting the game by clicking on a mine
   defp generate_mines(initial_x, initial_y) do
     mine_iterations = Enum.to_list(1..99)
 
@@ -268,31 +270,37 @@ defmodule MinesweeperWeb.MinesweeperLive do
     x_value = String.to_integer(x)
     y_value = String.to_integer(y)
 
-    if shiftKey do
-      mark_mines(socket, x_value, y_value)
-    else
-      # regenerate mines after first field is clicked to prevent first move ending the game
-      socket =
-        if socket.assigns.game_started? == false and (x_value != 1 or y_value != 1) do
-          socket
-          |> new_game(x_value, y_value)
-        else
-          socket
-        end
+    %{^x_value => %{^y_value => [mine, _mine_state]}} = socket.assigns.rows
 
-      if socket.assigns.game_ended? == false and !shiftKey do
-        explode_mines(socket, x_value, y_value)
+    socket =
+    # regenerate mines if the first field clicked is a mine
+      if mine == 1 and socket.assigns.game_started? == false do
+        socket
+        |> new_game(x_value, y_value)
       else
-        {:noreply, socket}
+        socket
       end
+
+    cond do
+      shiftKey and socket.assigns.game_started? == true ->
+        # if the game has started, and you click shift, mark mines
+        mark_mines(socket, x_value, y_value)
+      socket.assigns.game_ended? == false and not shiftKey ->
+        # if the game hasn't ended, and you didn't click shift, explode mines
+        explode_mines(socket, x_value, y_value)
+      true ->
+        {:noreply, socket}
     end
   end
 
   def handle_event("restart-game", _key, socket) do
-    # randomly generate mines
+    # randomly generate initial mines with random coordinates
+    random_initial_x = Enum.random(1..@rows)
+    random_initial_y = Enum.random(1..@columns)
+
     new_socket =
       socket
-      |> new_game(1, 1)
+      |> new_game(random_initial_x, random_initial_y)
 
     {:noreply, new_socket}
   end
@@ -301,7 +309,11 @@ defmodule MinesweeperWeb.MinesweeperLive do
     new_socket = schedule_tick(socket)
 
     if new_socket.assigns.game_started? do
-      new_time = if new_socket.assigns.time < 999, do: new_socket.assigns.time + 1, else: new_socket.assigns.time
+      new_time =
+        if new_socket.assigns.time < 999,
+          do: new_socket.assigns.time + 1,
+          else: new_socket.assigns.time
+
       {:noreply, assign(new_socket, time: new_time)}
     else
       {:noreply, socket}
