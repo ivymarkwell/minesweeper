@@ -272,9 +272,10 @@ defmodule MinesweeperWeb.MinesweeperLive do
 
     %{^x_value => %{^y_value => [mine, _mine_state]}} = socket.assigns.rows
 
-    socket =
     # regenerate mines if the first field clicked is a mine
-      if mine == 1 and socket.assigns.game_started? == false and socket.assigns.game_ended? == false do
+    socket =
+      if mine == 1 and socket.assigns.game_started? == false and
+           socket.assigns.game_ended? == false do
         socket
         |> new_game(x_value, y_value)
       else
@@ -285,9 +286,11 @@ defmodule MinesweeperWeb.MinesweeperLive do
       shiftKey and socket.assigns.game_started? == true ->
         # if the game has started, and you click shift, mark mines
         mark_mines(socket, x_value, y_value)
+
       socket.assigns.game_ended? == false and not shiftKey ->
         # if the game hasn't ended, and you didn't click shift, explode mines
         explode_mines(socket, x_value, y_value)
+
       true ->
         {:noreply, socket}
     end
