@@ -5,14 +5,98 @@ defmodule MinesweeperWeb.MinesweeperLive do
   @columns 30
   @mine_count 99
 
-  # possible mine states
+  # possible mine states:
   # unchecked
   # field
   # exploded-mine
   # flag
   # question
 
-  # TODO: clean up in general
+  def render(assigns) do
+    MinesweeperWeb.PageView.render("index.html", assigns)
+  end
+
+  def mount(_session, socket) do
+    # randomly generate mines
+    random_initial_x = Enum.random(1..@rows)
+    random_initial_y = Enum.random(1..@columns)
+
+    socket =
+      socket
+      |> new_game(random_initial_x, random_initial_y)
+
+    if connected?(socket) do
+      {:ok, schedule_tick(socket)}
+    else
+      {:ok, socket}
+    end
+  end
+
+  def handle_event("mine-click", key, socket) do
+    %{"shiftKey" => shiftKey, "x" => x, "y" => y} = key
+
+    x_value = String.to_integer(x)
+    y_value = String.to_integer(y)
+
+    %{^x_value => %{^y_value => [mine, _mine_state]}} = socket.assigns.rows
+
+    # regenerate mines if the first field clicked is a mine
+    socket =
+      if mine == 1 and socket.assigns.game_started? == false and
+           socket.assigns.game_ended? == false do
+        socket
+        |> new_game(x_value, y_value)
+      else
+        socket
+      end
+
+    cond do
+      shiftKey and socket.assigns.game_started? == true ->
+        # if the game has started, and you click shift, mark mines
+        mark_mines(socket, x_value, y_value)
+
+      socket.assigns.game_ended? == false and not shiftKey ->
+        # if the game hasn't ended, and you didn't click shift, explode mines
+        explode_mines(socket, x_value, y_value)
+
+      true ->
+        {:noreply, socket}
+    end
+  end
+
+  def handle_event("restart-game", _key, socket) do
+    # randomly generate initial mines with random coordinates
+    random_initial_x = Enum.random(1..@rows)
+    random_initial_y = Enum.random(1..@columns)
+
+    new_socket =
+      socket
+      |> new_game(random_initial_x, random_initial_y)
+
+    {:noreply, new_socket}
+  end
+
+  def handle_info(:tick, socket) do
+    new_socket = schedule_tick(socket)
+
+    if new_socket.assigns.game_started? do
+      new_time =
+        if new_socket.assigns.time < 999,
+          do: new_socket.assigns.time + 1,
+          else: new_socket.assigns.time
+
+      {:noreply, assign(new_socket, time: new_time)}
+    else
+      {:noreply, socket}
+    end
+  end
+
+  # private helpers
+
+  defp schedule_tick(socket) do
+    Process.send_after(self(), :tick, 1000)
+    socket
+  end
 
   defp new_game(socket, initial_x, initial_y) do
     assign(socket,
@@ -30,23 +114,20 @@ defmodule MinesweeperWeb.MinesweeperLive do
     random_x = Enum.random(1..@rows)
     random_y = Enum.random(1..@columns)
 
-    final_coordinates =
-      if [random_x, random_y] == [initial_x, initial_y] ||
-           Enum.member?(mines, [random_x, random_y]) do
-        generate_random_coordinates(mines, initial_x, initial_y)
-      else
-        [random_x, random_y]
-      end
-
-    final_coordinates
+    if [random_x, random_y] == [initial_x, initial_y] ||
+         Enum.member?(mines, [random_x, random_y]) do
+      generate_random_coordinates(mines, initial_x, initial_y)
+    else
+      [random_x, random_y]
+    end
   end
 
   # this function takes an initial x and y position
   # used to to prevent the player from starting the game by clicking on a mine
   defp generate_mines(initial_x, initial_y) do
-    mine_iterations = Enum.to_list(1..99)
+    num_mine_iterations = Enum.to_list(1..99)
 
-    Enum.reduce(mine_iterations, [], fn _mine, mines ->
+    Enum.reduce(num_mine_iterations, [], fn _mine, mines ->
       [generate_random_coordinates(mines, initial_x, initial_y)] ++ mines
     end)
   end
@@ -79,7 +160,7 @@ defmodule MinesweeperWeb.MinesweeperLive do
       Enum.any?(column_map, fn column ->
         {_y, [mine_value, mine_state]} = column
 
-        if mine_state == "unchecked" and mine_value == nil do
+        if mine_state != "field" and mine_value == nil do
           true
         else
           false
@@ -257,89 +338,5 @@ defmodule MinesweeperWeb.MinesweeperLive do
        mine_count: new_mine_count,
        rows: new_rows
      )}
-  end
-
-  defp schedule_tick(socket) do
-    Process.send_after(self(), :tick, 1000)
-    socket
-  end
-
-  def handle_event("mine-click", key, socket) do
-    %{"shiftKey" => shiftKey, "x" => x, "y" => y} = key
-
-    x_value = String.to_integer(x)
-    y_value = String.to_integer(y)
-
-    %{^x_value => %{^y_value => [mine, _mine_state]}} = socket.assigns.rows
-
-    # regenerate mines if the first field clicked is a mine
-    socket =
-      if mine == 1 and socket.assigns.game_started? == false and
-           socket.assigns.game_ended? == false do
-        socket
-        |> new_game(x_value, y_value)
-      else
-        socket
-      end
-
-    cond do
-      shiftKey and socket.assigns.game_started? == true ->
-        # if the game has started, and you click shift, mark mines
-        mark_mines(socket, x_value, y_value)
-
-      socket.assigns.game_ended? == false and not shiftKey ->
-        # if the game hasn't ended, and you didn't click shift, explode mines
-        explode_mines(socket, x_value, y_value)
-
-      true ->
-        {:noreply, socket}
-    end
-  end
-
-  def handle_event("restart-game", _key, socket) do
-    # randomly generate initial mines with random coordinates
-    random_initial_x = Enum.random(1..@rows)
-    random_initial_y = Enum.random(1..@columns)
-
-    new_socket =
-      socket
-      |> new_game(random_initial_x, random_initial_y)
-
-    {:noreply, new_socket}
-  end
-
-  def handle_info(:tick, socket) do
-    new_socket = schedule_tick(socket)
-
-    if new_socket.assigns.game_started? do
-      new_time =
-        if new_socket.assigns.time < 999,
-          do: new_socket.assigns.time + 1,
-          else: new_socket.assigns.time
-
-      {:noreply, assign(new_socket, time: new_time)}
-    else
-      {:noreply, socket}
-    end
-  end
-
-  def render(assigns) do
-    MinesweeperWeb.PageView.render("index.html", assigns)
-  end
-
-  def mount(_session, socket) do
-    # randomly generate mines
-    random_initial_x = Enum.random(1..@rows)
-    random_initial_y = Enum.random(1..@columns)
-
-    socket =
-      socket
-      |> new_game(random_initial_x, random_initial_y)
-
-    if connected?(socket) do
-      {:ok, schedule_tick(socket)}
-    else
-      {:ok, socket}
-    end
   end
 end
