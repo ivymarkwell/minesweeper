@@ -20,27 +20,29 @@ defmodule MinesweeperWeb do
   def controller do
     quote do
       use Phoenix.Controller, namespace: MinesweeperWeb
-      import Plug.Conn
-      import MinesweeperWeb.Router.Helpers
       import MinesweeperWeb.Gettext
+      import MinesweeperWeb.Router.Helpers
+      import Phoenix.LiveView.Controller
+      import Plug.Conn
     end
   end
 
   def view do
     quote do
+      # Use all HTML functionality (forms, tags, etc)
+      use Phoenix.HTML
+
       use Phoenix.View,
         root: "lib/minesweeper_web/templates",
         namespace: MinesweeperWeb
 
       # Import convenience functions from controllers
-      import Phoenix.Controller, only: [get_flash: 2, view_module: 1]
+      import Phoenix.Controller, only: [get_flash: 1, get_flash: 2, view_module: 1]
 
-      # Use all HTML functionality (forms, tags, etc)
-      use Phoenix.HTML
-
-      import MinesweeperWeb.Router.Helpers
       import MinesweeperWeb.ErrorHelpers
       import MinesweeperWeb.Gettext
+      import MinesweeperWeb.Router.Helpers
+      import Phoenix.LiveView.Helpers
     end
   end
 
@@ -49,6 +51,7 @@ defmodule MinesweeperWeb do
       use Phoenix.Router
       import Plug.Conn
       import Phoenix.Controller
+      import Phoenix.LiveView.Router
     end
   end
 

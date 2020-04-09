@@ -19,7 +19,7 @@ config :minesweeper, MinesweeperWeb.Endpoint,
   url: [scheme: "https", host: "liveview-minesweeper.herokuapp.com", port: 443],
   cache_static_manifest: "priv/static/cache_manifest.json",
   server: true,
-  secret_key_base: "${SECRET_KEY_BASE}"
+  secret_key_base: Map.fetch!(System.get_env(), "SECRET_KEY_BASE")
 
 # Do not print debug messages in production
 config :logger, level: :info

@@ -1,29 +1,20 @@
 defmodule MinesweeperWeb.Router do
   use MinesweeperWeb, :router
 
+  import Phoenix.LiveView.Router
+
   pipeline :browser do
     plug :accepts, ["html"]
     plug :fetch_session
-    plug :fetch_flash
-    plug Phoenix.LiveView.Flash
+    plug :fetch_live_flash
     plug :protect_from_forgery
     plug :put_secure_browser_headers
-  end
-
-  pipeline :api do
-    plug :accepts, ["json"]
   end
 
   scope "/", MinesweeperWeb do
     # Use the default browser stack
     pipe_through :browser
 
-    # get "/", PageController, :index
-    get "/", PageController, :game
+    live "/", MinesweeperLive, layout: {MinesweeperWeb.LayoutView, "app.html"}
   end
-
-  # Other scopes may use custom stacks.
-  # scope "/api", MinesweeperWeb do
-  #   pipe_through :api
-  # end
 end

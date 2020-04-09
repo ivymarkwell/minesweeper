@@ -1,8 +1,16 @@
 defmodule MinesweeperWeb.Endpoint do
   use Phoenix.Endpoint, otp_app: :minesweeper
 
-  socket "/socket", MinesweeperWeb.UserSocket, websocket: true, longpoll: false
-  socket "/live", Phoenix.LiveView.Socket
+  # The session will be stored in the cookie and signed,
+  # this means its contents can be read but not tampered with.
+  # Set :encryption_salt if you would also like to encrypt it.
+  @session_options [
+    store: :cookie,
+    key: "_minesweeper_key",
+    signing_salt: "MdMOc8XMH6Xdtt/LIw0fRsL64ZSAWB06fZhLWNPuqS80n17+gY2SRaS4qamCDNnr"
+  ]
+
+  socket "/live", Phoenix.LiveView.Socket, websocket: [connect_info: [session: @session_options]]
 
   # Serve at "/" the static files from "priv/static" directory.
   #
@@ -31,14 +39,6 @@ defmodule MinesweeperWeb.Endpoint do
 
   plug Plug.MethodOverride
   plug Plug.Head
-
-  # The session will be stored in the cookie and signed,
-  # this means its contents can be read but not tampered with.
-  # Set :encryption_salt if you would also like to encrypt it.
-  plug Plug.Session,
-    store: :cookie,
-    key: "_minesweeper_key",
-    signing_salt: "07pDdIylxJF0eqvrbD9bd5QyIKyzar2RVKHZanGz+pzJ2aTV03CBWDH2dHTO37OD"
-
+  plug Plug.Session, @session_options
   plug MinesweeperWeb.Router
 end

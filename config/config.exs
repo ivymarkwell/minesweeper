@@ -11,7 +11,7 @@ config :minesweeper, MinesweeperWeb.Endpoint,
   secret_key_base: "rPzWv2QgEYbJqGPLHt49VElM6bwvngSZwUqKjOoN5jPumEGoGMGYkd+Jxp3K58/K",
   render_errors: [view: MinesweeperWeb.ErrorView, accepts: ~w(html json)],
   pubsub: [name: Minesweeper.PubSub, adapter: Phoenix.PubSub.PG2],
-  live_view: [signing_salt: "V/qbw+bC3N9IMj0Y58QKRY44Q3jZRS2n"]
+  live_view: [signing_salt: "MdMOc8XMH6Xdtt/LIw0fRsL64ZSAWB06fZhLWNPuqS80n17+gY2SRaS4qamCDNnr"]
 
 # Configures Elixir's Logger
 config :logger, :console,

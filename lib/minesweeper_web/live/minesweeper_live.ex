@@ -16,7 +16,7 @@ defmodule MinesweeperWeb.MinesweeperLive do
     MinesweeperWeb.PageView.render("index.html", assigns)
   end
 
-  def mount(_session, socket) do
+  def mount(_params, _session, socket) do
     # randomly generate mines
     random_initial_x = Enum.random(1..@rows)
     random_initial_y = Enum.random(1..@columns)
