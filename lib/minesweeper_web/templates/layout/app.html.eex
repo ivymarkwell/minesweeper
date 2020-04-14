@@ -8,6 +8,7 @@
     <title>Minesweeper Live</title>
     <link rel="stylesheet" href="<%= static_path(@conn, "/css/app.css") %>"/>
     <%= csrf_meta_tag() %>
+    <script type="text/javascript" src="<%= static_path(@conn, "/js/app.js") %>"></script>
   </head>
 
   <body>
@@ -18,7 +19,5 @@
         <%= @inner_content %>
       </main>
     </div>
-    <%= csrf_meta_tag() %>
-    <script type="text/javascript" src="<%= static_path(@conn, "/js/app.js") %>"></script>
   </body>
 </html>
