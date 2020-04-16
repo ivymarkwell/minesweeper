@@ -15,6 +15,6 @@ defmodule MinesweeperWeb.Router do
     # Use the default browser stack
     pipe_through :browser
 
-    live "/", MinesweeperLive, layout: {MinesweeperWeb.LayoutView, "app.html"}
+    live "/", MinesweeperLive, layout: {MinesweeperWeb.LayoutView, "root.html"}
   end
 end
