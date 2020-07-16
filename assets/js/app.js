@@ -29,5 +29,12 @@ let csrfToken = document
   .getAttribute("content");
 let liveSocket = new LiveSocket("/live", Socket, {
   params: { _csrf_token: csrfToken },
+  metadata: {
+    click: (e, el) => {
+      return {
+        shiftKey: e.shiftKey,
+      };
+    },
+  },
 });
 liveSocket.connect();
