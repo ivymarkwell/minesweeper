@@ -3,15 +3,17 @@
 #
 # This configuration file is loaded before any dependency and
 # is restricted to this project.
-use Mix.Config
+import Config
 
 # Configures the endpoint
 config :minesweeper, MinesweeperWeb.Endpoint,
   url: [host: "localhost"],
   secret_key_base: "rPzWv2QgEYbJqGPLHt49VElM6bwvngSZwUqKjOoN5jPumEGoGMGYkd+Jxp3K58/K",
   render_errors: [view: MinesweeperWeb.ErrorView, accepts: ~w(html json)],
-  pubsub: [name: Minesweeper.PubSub, adapter: Phoenix.PubSub.PG2],
-  live_view: [signing_salt: "MdMOc8XMH6Xdtt/LIw0fRsL64ZSAWB06fZhLWNPuqS80n17+gY2SRaS4qamCDNnr"]
+  live_view: [signing_salt: "MdMOc8XMH6Xdtt/LIw0fRsL64ZSAWB06fZhLWNPuqS80n17+gY2SRaS4qamCDNnr"],
+  pubsub_server: Minesweeper.PubSub
+
+config :phoenix, :json_library, Poison
 
 # Configures Elixir's Logger
 config :logger, :console,
