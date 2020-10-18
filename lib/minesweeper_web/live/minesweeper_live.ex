@@ -21,9 +21,7 @@ defmodule MinesweeperWeb.MinesweeperLive do
     random_initial_x = Enum.random(1..@rows)
     random_initial_y = Enum.random(1..@columns)
 
-    socket =
-      socket
-      |> new_game(random_initial_x, random_initial_y)
+    socket = new_game(socket, random_initial_x, random_initial_y)
 
     if connected?(socket) do
       {:ok, schedule_tick(socket)}
@@ -33,7 +31,7 @@ defmodule MinesweeperWeb.MinesweeperLive do
   end
 
   def handle_event("mine-click", key, socket) do
-    %{"shiftKey" => shiftKey, "x" => x, "y" => y} = key
+    %{"shiftKey" => shift_key, "x" => x, "y" => y} = key
 
     x_value = String.to_integer(x)
     y_value = String.to_integer(y)
@@ -44,18 +42,17 @@ defmodule MinesweeperWeb.MinesweeperLive do
     socket =
       if mine == 1 and socket.assigns.game_started? == false and
            socket.assigns.game_ended? == false do
-        socket
-        |> new_game(x_value, y_value)
+        new_game(socket, x_value, y_value)
       else
         socket
       end
 
     cond do
-      shiftKey and socket.assigns.game_started? == true ->
+      shift_key and socket.assigns.game_started? == true ->
         # if the game has started, and you click shift, mark mines
         mark_mines(socket, x_value, y_value)
 
-      socket.assigns.game_ended? == false and not shiftKey ->
+      socket.assigns.game_ended? == false and not shift_key ->
         # if the game hasn't ended, and you didn't click shift, explode mines
         explode_mines(socket, x_value, y_value)
 
@@ -69,9 +66,7 @@ defmodule MinesweeperWeb.MinesweeperLive do
     random_initial_x = Enum.random(1..@rows)
     random_initial_y = Enum.random(1..@columns)
 
-    new_socket =
-      socket
-      |> new_game(random_initial_x, random_initial_y)
+    new_socket = new_game(socket, random_initial_x, random_initial_y)
 
     {:noreply, new_socket}
   end
