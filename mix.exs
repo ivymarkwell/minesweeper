@@ -38,7 +38,7 @@ defmodule Minesweeper.Mixfile do
       {:phoenix_live_reload, "~> 1.2.1", only: :dev},
       {:gettext, "~> 0.17.1"},
       {:plug_cowboy, "~> 2.2"},
-      {:phoenix_live_view, "~> 0.14.1"},
+      {:phoenix_live_view, "~> 0.14.7"},
       {:poison, "~> 3.1"}
     ]
   end
